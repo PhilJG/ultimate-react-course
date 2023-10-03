@@ -142,3 +142,24 @@ function getBooks() {
 function getBook(id) {
   return data.find((d) => d.id === id);
 }
+
+// fetch(`https://jsonplaceholder.typicode.com/todos`) //fires request to api and moves onto next function while it waits for a respons...
+//   .then((res) => res.json()) //then it resgister what needs to be done once the response arrives which is convert the response to json (another promise)
+//   .then((data) => console.log(data)); //then once the json promise response is recieved it logs the data into teh console
+
+// console.log("Phil");
+
+//Can easily and immeditaely stire awauted data in variables this way
+async function getTodos() {
+  //result value of this function is always a promise
+  const res = await fetch(`https://jsonplaceholder.typicode.com/todos`); // await pauses the function within the code. Does not go further
+  const data = await res.json();
+  console.log(data);
+
+  return data;
+}
+
+const todos = getTodos();
+console.log(todos); //pending promise
+
+console.log("Phil");
