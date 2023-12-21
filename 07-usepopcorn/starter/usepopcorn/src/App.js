@@ -9,10 +9,15 @@ const KEY = "9ee64e49";
 export default function App() {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+
+  // const [watched, setWatched] = useState([]);
+  const [watched, setWatched] = useState(function () {
+    const storedValue = localStorage.getItem("watched");
+    return JSON.parse(storedValue);
+  });
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
@@ -24,11 +29,20 @@ export default function App() {
 
   function handleAddWatched(movie) {
     setWatched((watched) => [...watched, movie]);
+
+    // localStorage.setItem("watched", JSON.stringify([...watched, movie]));
   }
 
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
+
+  useEffect(
+    function () {
+      localStorage.setItem("watched", JSON.stringify(watched));
+    },
+    [watched]
+  );
 
   useEffect(
     function () {
@@ -79,7 +93,10 @@ export default function App() {
   return (
     <>
       <Navbar>
-        <Search query={query} setQuery={setQuery} />
+        <Search
+          query={query}
+          setQuery={setQuery}
+        />
         <NumResults movies={movies} />
       </Navbar>
 
@@ -89,7 +106,10 @@ export default function App() {
 
           {isLoading && <Loader />}
           {!isLoading && !error && (
-            <MovieList movies={movies} onSelectMovie={handleSelectMovie} />
+            <MovieList
+              movies={movies}
+              onSelectMovie={handleSelectMovie}
+            />
           )}
           {error && <ErrorMessage message={error} />}
         </Box>
@@ -147,6 +167,12 @@ function Logo() {
 }
 
 function Search({ query, setQuery }) {
+  useEffect(function () {
+    const el = document.querySelector(".search");
+    console.log(el);
+    el.focus();
+  }, []);
+
   return (
     <input
       className="search"
@@ -175,7 +201,10 @@ function Box({ children }) {
 
   return (
     <div className="box">
-      <button className="btn-toggle" onClick={() => setIsOpen((open) => !open)}>
+      <button
+        className="btn-toggle"
+        onClick={() => setIsOpen((open) => !open)}
+      >
         {isOpen ? "–" : "+"}
       </button>
       {isOpen && children}
@@ -209,7 +238,11 @@ function MovieList({ movies, onSelectMovie }) {
   return (
     <ul className="list list-movies">
       {movies?.map((movie) => (
-        <Movie movie={movie} key={movie.imdbID} onSelectMovie={onSelectMovie} />
+        <Movie
+          movie={movie}
+          key={movie.imdbID}
+          onSelectMovie={onSelectMovie}
+        />
       ))}
     </ul>
   );
@@ -218,7 +251,10 @@ function MovieList({ movies, onSelectMovie }) {
 function Movie({ movie, onSelectMovie }) {
   return (
     <li onClick={() => onSelectMovie(movie.imdbID)}>
-      <img src={movie.Poster} alt={`${movie.Title} poster`} />
+      <img
+        src={movie.Poster}
+        alt={`${movie.Title} poster`}
+      />
       <h3>{movie.Title}</h3>
       <div>
         <p>
@@ -257,6 +293,19 @@ function MoviesDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
 
   /* eslint-disable */
   // if (imdbRating > 8) [isTop, setIsTop] = useState(true);
+  // const [isTop, setIsTop] = useState(imdbRating > 8);
+  // console.log(isTop);
+  // useEffect(
+  //   function () {
+  //     setIsTop(imdbRating > 8);
+  //   },
+  //   [imdbRating]
+  // );
+
+  const isTop = imdbRating > 8;
+  // console.log(isTop);
+
+  // const [avgRating, setAvgRating] = useState(0);
 
   function handleAdd() {
     const newWatchedMovie = {
@@ -271,6 +320,9 @@ function MoviesDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
 
     onAddWatched(newWatchedMovie);
     onCloseMovie();
+
+    // setAvgRating(Number(imdbRating));
+    // setAvgRating((x) => (x + userRating) / 2);
   }
 
   useEffect(
@@ -326,10 +378,16 @@ function MoviesDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
       ) : (
         <>
           <header>
-            <button className="btn-back" onClick={onCloseMovie}>
+            <button
+              className="btn-back"
+              onClick={onCloseMovie}
+            >
               &larr;
             </button>
-            <img src={poster} alt={`Poster of ${movie} movie`} />
+            <img
+              src={poster}
+              alt={`Poster of ${movie} movie`}
+            />
             <div className="details-overview">
               <h2>{title}</h2>
               <p>
@@ -342,6 +400,8 @@ function MoviesDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
             </div>
           </header>
 
+          {/* <p>{avgRating}</p> */}
+
           <section>
             <div className="rating">
               {!isWatched ? (
@@ -352,7 +412,10 @@ function MoviesDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
                     onSetRating={setUserRating}
                   />
                   {userRating > 0 && (
-                    <button className="btn-add" onClick={handleAdd}>
+                    <button
+                      className="btn-add"
+                      onClick={handleAdd}
+                    >
                       + Add to List
                     </button>
                   )}
@@ -423,7 +486,10 @@ function WatchedMovieList({ watched, onDeleteWatched }) {
 function WatchedMovie({ movie, onDeleteWatched }) {
   return (
     <li>
-      <img src={movie.poster} alt={`${movie.title} poster`} />
+      <img
+        src={movie.poster}
+        alt={`${movie.title} poster`}
+      />
       <h3>{movie.Title}</h3>
       <div>
         <p>
